@@ -31,8 +31,7 @@
 		var sig;
 	sig =  Normalizer.ar(PlayBuf.ar(1, \buf.kr(0), 1, loop:1), 0.6, 0.02);
 		Out.ar(\out.kr(0), sig * \fb.kr(0.7));
-		Out.ar(\out2.kr(0), sig!2);
-	}).add;
+		Out.ar(\out2.kr(0), sig!2)}).add;
 
 	SynthDef(\write, {
 		var sig;
