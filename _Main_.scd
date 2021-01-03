@@ -18,9 +18,9 @@ s.waitForBoot{
 	s.sync;
 
 	~write = Synth(\write, [\in, ~filterBus, \buf, ~buf]);
-	~filter = Synth(\filters, [\fundamental, 20, \spec, 200, \rq, 0.01,
-		\in, ~verbBus, \maxDelaytime, 1, \delScale, 0.1, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
+	~filter = Synth(\filters, [\fundamental, 20, \spec, 500, \rq, 0.5,
+		\in, ~verbBus, \maxDelaytime, 1, \delScale, 0, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
 	~verb = Synth(\spatialization, [\in, ~playBus, \fftsize, 4096, \buf, ~srcbuf, \predelay, 0.5,
-		\dryness, 0.6, \amp, 0.5, \out, ~verbBus, \decaytime, 1]);
-	~read = Synth(\read, [\buf, ~buf, \out, ~playBus, \out2, 0, \fb, 1.4]);
+		\dryness, 0, \amp, 0.5, \out, ~verbBus, \decaytime, 1]);
+	~read = Synth(\read, [\buf, ~buf, \out, ~playBus, \out2, 0, \fb, 1]);
 };
