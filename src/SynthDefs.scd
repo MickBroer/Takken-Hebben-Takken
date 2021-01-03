@@ -23,15 +23,16 @@ SynthDef(\filters, {
 			(i * \spec.kr(20,0.1) + SinOsc.kr(0.25 / i).range(0, 500)),
 			\rq.kr(1), \rq.kr.reciprocal);
 		CombC.ar(band, \maxDelaytime.ir(0.2), (0 + i * \delScale.kr(0)))});
-	sig = Mix.ar((in * \dryness.kr(0.5)) + (Mix.ar([array, LPF.ar(in, \fundamental.kr)]) * (1 - \dryness.kr)) * \amp.kr(0.5));
-	Out.ar(\out.kr(0), sig)}).add;
+	sig = Mix.ar((in * \dryness.kr(0.5))
+		+ (Mix.ar([array, LPF.ar(in, \fundamental.kr)]) * (1 - \dryness.kr)) * \amp.kr(0.5));
+	Out.ar(\out.kr(0), sig);
+	Out.ar(\out2.kr(0), Normalizer.ar(sig!2, 0.6, 0.02))}).add;
 
 // SynthDefs for recording and playing back
 SynthDef(\read, {
 	var sig;
-	sig = Normalizer.ar(PlayBuf.ar(1, \buf.kr(0), 1, loop:1), 0.6, 0.02);
-	Out.ar(\out.kr(0), sig * \fb.kr(0.7));
-	Out.ar(\out2.kr(0), sig!2)}).add;
+	sig = PlayBuf.ar(1, \buf.kr(0), 1, loop:1);
+	Out.ar(\out.kr(0), sig * \fb.kr(0.7))}).add;
 
 SynthDef(\write, {
 	var sig;
