@@ -29,3 +29,4 @@ s.waitForBoot{
 		\dryness, 0, \amp, 0.5, \out, ~verbBus, \decaytime, 1]);
 	~read = Synth(\read, [\buf, ~buf, \out, ~playBus, \fb, 1]);
 };
+
