@@ -1,21 +1,25 @@
 // Mick Broer
 
-// Load dependencies
+s.options.memSize = 65536;
 s.waitForBoot{
 
+	// Load dependencies
 	~path = PathName.new(thisProcess.nowExecutingPath).parentPath;
-	~synthdefs = ~path ++ "src/SynthDefs.scd";
-	~synthdefs.load;
+	(~path ++ "src/filters.scd").load;
+	(~path ++ "src/readwrite.scd").load;
+	(~path ++ "src/spatialization.scd").load;
 
+	// Set up buffers and busses
 	~verbBus = Bus.audio(s);
 	~playBus = Bus.audio(s);
 	~filterBus = Bus.audio(s);
 
-// Set up buffers and busses
 	~srcbuf = Buffer.readChannel(s, ~path ++ "audio/fieldrecording.aif", channels: 0).normalize(0.8, false);
 	~buf = Buffer.readChannel(s, ~path ++ "audio/noisedrone.aif", channels:0).normalize(0.8, false);
 
 	s.sync;
+
+	// Activate synths
 
 	~write = Synth(\write, [\in, ~filterBus, \buf, ~buf]);
 	~filter = Synth(\filters, [\fundamental, 20, \spec, 500, \rq, 0.5,
