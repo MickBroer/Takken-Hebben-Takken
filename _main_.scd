@@ -36,7 +36,7 @@ s.waitForBoot{
 			\dryness, 0.9, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1]);
 		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \rate, 1,
 			\buf, ~buf, \dryness, 0.5, \freq, 400, \overlap, 0.01]);
-		~read = Synth(\read, [\buf, ~buf, \out, ~playBus, \fb, 1])};
+		~read = Synth(\read, [\buf, ~buf, \out, ~playBus, \amp, 1])};
 
 		s.sync;
 
