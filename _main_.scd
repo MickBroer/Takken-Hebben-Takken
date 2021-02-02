@@ -2,6 +2,7 @@
 
 ~path = PathName(thisProcess.nowExecutingPath).parentPath;
 ~buffers = Array.new;
+ServerTree.removeAll;
 
 s.options.memSize = 65536;
 s.waitForBoot{
@@ -16,25 +17,30 @@ s.waitForBoot{
 	PathName(~path ++ "audio/").entries.collect{ |file|
 		~buffers = ~buffers.add(Buffer.readChannel(s, file.fullPath, channels:0).normalize(0.8, false))};
 
-	// Allocate busses
+	// Allocate busses and groups
 	~playBus = Bus.audio(s);
 	~verbBus = Bus.audio(s);
 	~filterBus = Bus.audio(s);
 	~grainBus = Bus.audio(s);
 	~distortionBus = Bus.audio(s);
+	~sourceGroup = Group.new;
+	~fxGroup = Group.after(~sourceGroup);
+	~writeGroup = Group.after(~fxGroup);
 
 	s.sync;
 
 	// Activate synths
 	s.bind{
-		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]]);
+		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]], ~writeGroup);
 		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9,
-			\out, ~distortionBus, \out2, 0, \outamp, 0.5]);
-		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
+			\out, ~distortionBus, \out2, 0, \outamp, 1], ~fxGroup);
+		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1,
+			\amp, 0.1, \out, ~filterBus, \dryness, 0.9], ~fxGroup);
 		~verb = Synth(\spatialization, [\in, ~grainBus, \fftsize, 4096, \buf, ~buffers[0], \predelay, 0.5,
-			\dryness, 0.9, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1]);
-		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \buf, ~buffers[0], \dryness, 0.5]);
-		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1])};
+			\dryness, 0.5, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1], ~fxGroup);
+		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus,
+			\buf, ~buffers[0], \dryness, 0.5], ~fxGroup);
+		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1], ~sourceGroup)};
 
 	s.sync;
 
@@ -47,3 +53,4 @@ s.waitForBoot{
 			~grains.set(\rate, rrand(-2, 2).round(0.5), \freq, exprand(50, 1000),
 				\overlap, exprand(0.0001, 0.03));
 			(~buffers[0].numFrames/s.sampleRate).wait}}).play};
+
