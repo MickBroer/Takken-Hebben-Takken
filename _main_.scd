@@ -1,8 +1,8 @@
 // Mick Broer - Takken hebben takken hebben takken
 
+ServerTree.removeAll;
 ~path = PathName(thisProcess.nowExecutingPath).parentPath;
 ~buffers = Array.new;
-ServerTree.removeAll;
 
 s.options.memSize = 65536;
 s.waitForBoot{
