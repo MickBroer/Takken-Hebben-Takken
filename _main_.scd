@@ -28,21 +28,22 @@ s.waitForBoot{
 	// Activate synths
 	s.bind{
 		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[1]]);
-		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9, \out, ~distortionBus, \out2, 0]);
-		~filter = Synth(\filters, [\fundamental, 20, \spec, 500, \rq, 0.5,
-			\in, ~verbBus, \maxDelaytime, 1, \delScale, 0, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
+		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9,
+			\out, ~distortionBus, \out2, 0, \outamp, 0.2]);
+		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
 		~verb = Synth(\spatialization, [\in, ~grainBus, \fftsize, 4096, \buf, ~buffers[0], \predelay, 0.5,
 			\dryness, 0.9, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1]);
-		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \rate, 1,
-			\buf, ~buffers[1], \dryness, 0.5, \freq, 400, \overlap, 0.01]);
+		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \buf, ~buffers[1], \dryness, 0.5]);
 		~read = Synth(\read, [\buf, ~buffers[1], \out, ~playBus, \amp, 1])};
 
 	s.sync;
 
+	// Making the different rooms breathe
 	Tdef(\manipulator, {
 		loop{
 			~distortion.set(\clip, rrand(0.5, 1), \gain, exprand(1, 5));
-			~filter.set(\spec, exprand(20, 200), \rq, exprand(0.001, 1));
+			~filter.set(\fundamental, exprand(20, 500),
+				\spec, exprand(20, 500), \rq, exprand(0.001, 1), \delScale, rrand(0,0.1));
 			~grains.set(\rate, rrand(-2, 2).round(0.5), \freq, exprand(50, 1000),
 				\overlap, exprand(0.0001, 0.03));
 			(~buffers[1].numFrames/s.sampleRate).wait}}).play
