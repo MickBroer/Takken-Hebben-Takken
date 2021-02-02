@@ -27,14 +27,14 @@ s.waitForBoot{
 
 	// Activate synths
 	s.bind{
-		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[1]]);
+		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]]);
 		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9,
-			\out, ~distortionBus, \out2, 0, \outamp, 0.2]);
+			\out, ~distortionBus, \out2, 0, \outamp, 0.5]);
 		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1, \amp, 0.1, \out, ~filterBus, \dryness, 0.9]);
 		~verb = Synth(\spatialization, [\in, ~grainBus, \fftsize, 4096, \buf, ~buffers[0], \predelay, 0.5,
 			\dryness, 0.9, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1]);
-		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \buf, ~buffers[1], \dryness, 0.5]);
-		~read = Synth(\read, [\buf, ~buffers[1], \out, ~playBus, \amp, 1])};
+		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus, \buf, ~buffers[0], \dryness, 0.5]);
+		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1])};
 
 	s.sync;
 
@@ -46,5 +46,4 @@ s.waitForBoot{
 				\spec, exprand(20, 500), \rq, exprand(0.001, 1), \delScale, rrand(0,0.1));
 			~grains.set(\rate, rrand(-2, 2).round(0.5), \freq, exprand(50, 1000),
 				\overlap, exprand(0.0001, 0.03));
-			(~buffers[1].numFrames/s.sampleRate).wait}}).play
-};
+			(~buffers[0].numFrames/s.sampleRate).wait}}).play};
