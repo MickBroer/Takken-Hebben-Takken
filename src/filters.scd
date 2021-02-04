@@ -2,7 +2,7 @@
 
 SynthDef(\filters, {
 	var array, sig, in;
-	in = In.ar(\in.ir(0));
+	in = In.ar(\in.ir(0), 2);
 	array = Array.fill(10, {
 		|i|
 		var band = Resonz.ar(in, \fundamental.kr(100) +

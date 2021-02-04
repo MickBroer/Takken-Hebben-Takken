@@ -4,7 +4,7 @@ ServerTree.removeAll;
 ~path = PathName(thisProcess.nowExecutingPath).parentPath;
 ~buffers = Array.new;
 
-s.options.memSize = 65536;
+s.options.memSize = 2.pow(15);
 s.waitForBoot{
 	s.freeAll;
 	s.newBusAllocators;
@@ -19,9 +19,9 @@ s.waitForBoot{
 
 	// Allocate busses and groups
 	~playBus = Bus.audio(s);
-	~verbBus = Bus.audio(s);
-	~filterBus = Bus.audio(s);
-	~grainBus = Bus.audio(s);
+	~verbBus = Bus.audio(s, 2);
+	~filterBus = Bus.audio(s, 2);
+	~grainBus = Bus.audio(s, 2);
 	~distortionBus = Bus.audio(s);
 	~sourceGroup = Group.new;
 	~fxGroup = Group.after(~sourceGroup);
@@ -30,7 +30,6 @@ s.waitForBoot{
 	s.sync;
 
 	// Activate synths
-	s.bind{
 		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]], ~writeGroup);
 		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9,
 			\out, ~distortionBus, \out2, 0, \outamp, 1], ~fxGroup);
@@ -39,8 +38,8 @@ s.waitForBoot{
 		~verb = Synth(\spatialization, [\in, ~grainBus, \fftsize, 4096, \buf, ~buffers[0], \predelay, 0.5,
 			\dryness, 0.5, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1], ~fxGroup);
 		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus,
-			\buf, ~buffers[0], \dryness, 0.5], ~fxGroup);
-		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1], ~sourceGroup)};
+			\buf, ~buffers[0], \dryness, 0], ~fxGroup);
+		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1], ~sourceGroup);
 
 	s.sync;
 
@@ -53,4 +52,3 @@ s.waitForBoot{
 			~grains.set(\rate, rrand(-2, 2).round(0.5), \freq, exprand(50, 1000),
 				\overlap, exprand(0.0001, 0.03));
 			(~buffers[0].numFrames/s.sampleRate).wait}}).play};
-
