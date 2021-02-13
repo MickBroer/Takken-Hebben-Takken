@@ -9,4 +9,5 @@ SynthDef(\write, {
 	var sig;
 	sig = In.ar(\in.ir(0));
 	BufWr.ar(sig, \buf.kr(0),
-	Phasor.ar(0, BufRateScale.kr(\buf.kr), 0, BufFrames.kr(\buf.kr)))}).add;
+		Phasor.ar(0, BufRateScale.kr(\buf.kr), 0,
+			BufFrames.kr(\buf.kr)))}).add;

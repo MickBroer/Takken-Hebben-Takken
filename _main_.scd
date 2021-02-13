@@ -18,7 +18,6 @@ s.waitForBoot{
 		~buffers = ~buffers.add(Buffer.readChannel(s, file.fullPath, channels:0).normalize(0.8, false))};
 
 	// Allocate busses and groups
-	~playBus = Bus.audio(s);
 	~verbBus = Bus.audio(s, 2);
 	~filterBus = Bus.audio(s, 2);
 	~grainBus = Bus.audio(s, 2);
@@ -31,15 +30,14 @@ s.waitForBoot{
 
 	// Activate synths
 		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]], ~writeGroup);
-		~distortion = Synth(\distortion, [\in, ~filterBus, \dryness, 0.9,
+		~distortion = Synth(\distortion, [\in, ~verbBus, \dryness, 0.9,
 			\out, ~distortionBus, \out2, 0, \outamp, 1], ~fxGroup);
 		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1,
-			\amp, 0.1, \out, ~filterBus, \dryness, 0.7], ~fxGroup);
-		~verb = Synth(\spatialization, [\in, ~grainBus, \fftsize, 4096, \buf, ~buffers[0], \predelay, 0.5,
-			\dryness, 0.5, \amp, 0.5, \out, ~verbBus, \decaytime, 1, \maxDelaytime, 1], ~fxGroup);
-		~grains = Synth(\grains, [\in, ~playBus, \out, ~grainBus,
-			\buf, ~buffers[0], \dryness, 0], ~fxGroup);
-		~read = Synth(\read, [\buf, ~buffers[0], \out, ~playBus, \amp, 1], ~sourceGroup);
+			\amp, 1, \out, ~filterBus, \dryness, 0.7], ~fxGroup);
+		~verb = Synth(\reverb, [\in, ~grainBus, \out, ~verbBus, \feedback, 0.9,
+		    \damp, 100, \dryness, 0.5], ~fxGroup);
+		~grains = Synth(\grain, [\out, ~grainBus, \amp, 1,
+		    \buf, ~buffers[0]], ~fxGroup);
 
 	s.sync;
 
@@ -49,6 +47,5 @@ s.waitForBoot{
 			~distortion.set(\clip, rrand(0.5, 1), \gain, exprand(1, 5));
 			~filter.set(\fundamental, exprand(20, 500),
 				\spec, exprand(20, 500), \rq, exprand(0.1, 1), \delScale, rrand(0,0.1));
-			~grains.set(\rate, rrand(-2, 2).round(0.5), \freq, exprand(50, 3000),
-				\overlap, exprand(0.0001, 0.03), \trig, 1);
+			~grains.set(\rate, rrand(0.5, 2) * [-1, 1].choose, \freq, exprand(15, 40));
 			(~buffers[0].numFrames/s.sampleRate).wait}}).play};
