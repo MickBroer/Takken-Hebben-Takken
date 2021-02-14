@@ -30,13 +30,13 @@ s.waitForBoot{
 
 	// Activate synths
 		~write = Synth(\write, [\in, ~distortionBus, \buf, ~buffers[0]], ~writeGroup);
-		~distortion = Synth(\distortion, [\in, ~verbBus, \dryness, 0.9,
+		~distortion = Synth(\distortion, [\in, ~verbBus, \dryness, 0.8,
 			\out, ~distortionBus, \out2, 0, \outamp, 1], ~fxGroup);
 		~filter = Synth(\filters, [\in, ~verbBus, \maxDelaytime, 1,
 			\amp, 1, \out, ~filterBus, \dryness, 0.7], ~fxGroup);
-		~verb = Synth(\reverb, [\in, ~grainBus, \out, ~verbBus, \feedback, 0.9,
+		~verb = Synth(\reverb, [\in, ~grainBus, \out, ~verbBus, \feedback, 0.99,
 		    \damp, 100, \dryness, 0.5], ~fxGroup);
-		~grains = Synth(\grain, [\out, ~grainBus, \amp, 1,
+		~grains = Synth(\grain, [\out, ~grainBus, \amp, 1.5,
 		    \buf, ~buffers[0]], ~fxGroup);
 
 	s.sync;
@@ -44,8 +44,8 @@ s.waitForBoot{
 	// Making the different rooms breathe
 	Tdef(\manipulator, {
 		loop{
-			~distortion.set(\clip, rrand(0.5, 1), \gain, exprand(1, 5));
+			~distortion.set(\clip, rrand(0.5, 1), \gain, exprand(1, 10));
 			~filter.set(\fundamental, exprand(20, 500),
 				\spec, exprand(20, 500), \rq, exprand(0.1, 1), \delScale, rrand(0,0.1));
-			~grains.set(\rate, rrand(0.5, 2) * [-1, 1].choose, \freq, exprand(15, 40));
+			~grains.set(\rate, rrand(0.5, 2) * [-1, 1].choose, \freq, rrand(15, 40));
 			(~buffers[0].numFrames/s.sampleRate).wait}}).play};
